@@ -1,0 +1,19 @@
+#!/bin/bash
+
+path=`realpath "$@"`
+
+prev=''
+
+tmutil listbackups |
+  while read f; do
+    d="${f}/Macintosh HD$path"
+
+    if [ -z "$prev" ]; then
+      echo FIRST $d
+    else
+      echo -- $d
+      tmutil compare "$prev" "$d" | grep -E '[0-9]M|^[A-Z]'
+    fi
+    prev="$d"
+  done
+

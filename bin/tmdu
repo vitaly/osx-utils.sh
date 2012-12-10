@@ -1,0 +1,10 @@
+#!/bin/bash
+
+path=`realpath "$@"`
+
+tmutil listbackups |
+  while read f; do
+    d="${f}/Macintosh HD$path"
+    echo -- $d
+    du -sh "$d"
+  done

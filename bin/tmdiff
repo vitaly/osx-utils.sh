@@ -1,19 +1,43 @@
 #!/bin/bash
 
-path=`realpath "$@"`
+function usage()
+{
+  echo <<-USAGE
+Usage: tmdiff directory [backup1 backup2]
+USAGE
+  exit 1
+}
+
+[ -z "$1" ] && usage
+[ -n "$2" -a -z "$3" ] && usage
+
+path=`realpath "$1"`
+
+function summary()
+{
+  grep -E '[0-9]M|^[A-Z]'
+}
+
+function diff_backups()
+{
+  echo tmutil compare "$1"/*"$pat2" "$2"/*"$path"
+  tmutil compare "$1"/*"$path" "$2"/*"$path" | summary
+}
+
+if [ -n "$2" ]; then
+  diff_backups "$2" "$3"
+  exit 0
+fi
 
 prev=''
-
 tmutil listbackups |
   while read f; do
-    d="${f}/Macintosh HD$path"
-
     if [ -z "$prev" ]; then
-      echo FIRST $d
+      echo FIRST $f
     else
-      echo -- $d
-      tmutil compare "$prev" "$d" | grep -E '[0-9]M|^[A-Z]'
+      echo -- $f/$path
+      diff_backups "$f" "$prev"
     fi
-    prev="$d"
+    prev="$f"
   done
 

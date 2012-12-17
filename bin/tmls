@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ -z "$@" ]; then
+  tmutil listbackups
+  exit 0
+fi
+
 path=`realpath "$@"`
 
 tmutil listbackups |
